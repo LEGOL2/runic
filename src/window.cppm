@@ -51,9 +51,8 @@ public:
     }
 
     glfwMakeContextCurrent(window_);
-    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
+    if (!gladLoadGLLoader(reinterpret_cast<GLADloadproc>(glfwGetProcAddress))) {
       glfwDestroyWindow(window_);
-      glfwTerminate();
       std::exit(1);
     }
     if (vsync) {
