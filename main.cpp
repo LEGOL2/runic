@@ -9,7 +9,7 @@ int main() {
   };
 
   runic::Engine engine(config);
-  while (true) {
+  while (!engine.ShouldClose()) {
     engine.Render();
   }
 }

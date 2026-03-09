@@ -34,7 +34,7 @@ public:
     return *this;
   }
 
-  Window(size_t window_width, size_t window_height, const char *window_title,
+  Window(int window_width, int window_height, const char *window_title,
          bool vsync)
       : window_width_(window_width), window_height_(window_height) {
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
@@ -51,7 +51,10 @@ public:
     }
 
     glfwMakeContextCurrent(window_);
-    gladLoadGL();
+    if (!gladLoadGLLoader(reinterpret_cast<GLADloadproc>(glfwGetProcAddress))) {
+      glfwDestroyWindow(window_);
+      std::exit(1);
+    }
     if (vsync) {
       glfwSwapInterval(1);
     }
@@ -73,7 +76,7 @@ public:
 
 private:
   GLFWwindow *window_;
-  size_t window_width_;
-  size_t window_height_;
+  int window_width_;
+  int window_height_;
 };
 } // namespace runic

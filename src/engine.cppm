@@ -1,11 +1,11 @@
 module;
 
-import Runic.GlfwContext;
-import Runic.Window;
-
 #include <glad/glad.h>
 
 export module Runic.Engine;
+
+import Runic.GlfwContext;
+import Runic.Window;
 
 namespace runic {
 export struct EngineConfig {
@@ -31,6 +31,10 @@ public:
 
     // end frame
     window_.EndFrame();
+  }
+
+  bool ShouldClose() const {
+    return window_.ShouldClose();
   }
 
 private:
