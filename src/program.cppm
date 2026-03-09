@@ -39,9 +39,11 @@ public:
     GLint info_log_length{};
     glGetShaderiv(shader_id_, GL_INFO_LOG_LENGTH, &info_log_length);
     if (info_log_length > 1) {
-      std::string compiler_message(info_log_length, 0);
-      glGetShaderInfoLog(shader_id_, compiler_message.length(), nullptr,
-                         compiler_message.data());
+      std::string compiler_message(static_cast<std::size_t>(info_log_length), 0);
+      GLint log_length{};
+      glGetShaderInfoLog(shader_id_, static_cast<GLsizei>(compiler_message.length()),
+                         &log_length, compiler_message.data());
+      compiler_message.resize(static_cast<std::size_t>(log_length));
       throw std::runtime_error("Cannot compile shader: " + compiler_message);
     }
 
