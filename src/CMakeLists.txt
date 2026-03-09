@@ -1,6 +1,8 @@
 add_library(runic)
 set(SRC
+    engine.cppm
     runic.cppm
+    window.cppm
 )
 target_sources(runic PUBLIC FILE_SET CXX_MODULES FILES ${SRC})
 
