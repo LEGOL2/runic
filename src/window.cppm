@@ -6,7 +6,6 @@ module;
 // clang-format on
 
 #include <cstdlib>
-#include <stdio.h>
 
 export module Runic.Window;
 
@@ -26,7 +25,6 @@ public:
     if (this != &other) {
       if (window_) {
         glfwDestroyWindow(window_);
-        glfwTerminate();
       }
       window_ = other.window_;
       window_width_ = other.window_width_;
@@ -39,22 +37,16 @@ public:
   Window(int window_width, int window_height, const char *window_title,
          bool vsync)
       : window_width_(window_width), window_height_(window_height) {
-    if (!glfwInit()) {
-      std::exit(1);
-    }
-
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
 #ifndef NDEBUG
     glfwWindowHint(GLFW_CONTEXT_DEBUG, GLFW_TRUE);
-    glfwSetErrorCallback(ErrorCallback);
 #endif
     window_ = glfwCreateWindow(window_width_, window_height_, window_title,
                                nullptr, nullptr);
     if (!window_) {
-      glfwTerminate();
       std::exit(1);
     }
 
@@ -73,7 +65,6 @@ public:
   ~Window() {
     if (window_) {
       glfwDestroyWindow(window_);
-      glfwTerminate();
     }
   }
 
@@ -85,10 +76,6 @@ public:
   }
 
 private:
-  static void ErrorCallback(int error, const char *description) {
-    fprintf(stderr, "Error: %s\n", description);
-  }
-
   GLFWwindow *window_;
   int window_width_;
   int window_height_;

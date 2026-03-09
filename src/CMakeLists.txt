@@ -1,6 +1,7 @@
 add_library(runic)
 set(SRC
     engine.cppm
+    glfw_context.cppm
     runic.cppm
     window.cppm
 )
