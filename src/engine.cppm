@@ -1,5 +1,6 @@
 module;
 
+import Runic.GlfwContext;
 import Runic.Window;
 
 #include <glad/glad.h>
@@ -17,7 +18,8 @@ export struct EngineConfig {
 export class Engine {
 public:
   Engine(EngineConfig config)
-      : window_(config.window_width, config.window_height, config.window_title,
+      : glfw_context_(),
+        window_(config.window_width, config.window_height, config.window_title,
                 config.vsync) {}
 
   void Render() {
@@ -32,6 +34,7 @@ public:
   }
 
 private:
+  runic::GlfwContext glfw_context_;
   runic::Window window_;
 };
 } // namespace runic
