@@ -45,6 +45,9 @@ public:
   bool Compile(const std::string &shader_file, GLenum shader_type) {
     Delete();
     shader_id_ = glCreateShader(shader_type);
+    if (shader_id_ == INVALID_SHADER_ID) {
+      throw std::runtime_error("Failed to create shader");
+    }
     auto source_code = runic::utils::LoadSource(shader_file);
     auto *src = source_code.c_str();
     glShaderSource(shader_id_, 1, &src, nullptr);
@@ -81,7 +84,7 @@ public:
   }
 
 private:
-  static constexpr GLuint INVALID_SHADER_ID = 0xFFFFFFFF;
+  static constexpr GLuint INVALID_SHADER_ID = 0;
   GLuint shader_id_;
 };
 
@@ -121,13 +124,8 @@ public:
     }
   }
 
-  void CreateProgram() {
-    Delete();
-    program_id_ = glCreateProgram();
-  }
-
   void AttachShader(Shader const &shader) {
-    if (program_id_ != INVALID_PROGRAM_ID) {
+    if (program_id_ != INVALID_PROGRAM_ID && !shader.IsNull()) {
       glAttachShader(program_id_, shader.GetID());
     }
   }
@@ -145,6 +143,9 @@ public:
   }
 
   bool Link() {
+    if (program_id_ == INVALID_PROGRAM_ID) {
+      return false;
+    }
     glLinkProgram(program_id_);
     GLint result{};
     glGetProgramiv(program_id_, GL_LINK_STATUS, &result);
@@ -169,7 +170,15 @@ public:
   }
 
 private:
-  static constexpr GLuint INVALID_PROGRAM_ID = 0xFFFFFFFF;
+  void CreateProgram() {
+    Delete();
+    program_id_ = glCreateProgram();
+    if (program_id_ == INVALID_PROGRAM_ID) {
+      throw std::runtime_error("Failed to create program");
+    }
+  }
+
+  static constexpr GLuint INVALID_PROGRAM_ID = 0;
   GLuint program_id_;
 };
 } // namespace runic
