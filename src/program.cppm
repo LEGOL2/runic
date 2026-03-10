@@ -137,6 +137,37 @@ public:
     }
   }
 
+  bool Build(Shader const &vertex_shader, Shader const &fragment_shader) {
+    CreateProgram();
+    AttachShader(vertex_shader);
+    AttachShader(fragment_shader);
+    return Link();
+  }
+
+  bool Link() {
+    glLinkProgram(program_id_);
+    GLint result{};
+    glGetProgramiv(program_id_, GL_LINK_STATUS, &result);
+
+    GLint info_log_length{};
+    glGetProgramiv(program_id_, GL_INFO_LOG_LENGTH, &info_log_length);
+    if (info_log_length > 1) {
+      std::string compiler_message(static_cast<std::size_t>(info_log_length),
+                                   0);
+      GLint log_length{};
+      glGetProgramInfoLog(program_id_,
+                          static_cast<GLsizei>(compiler_message.length()),
+                          &log_length, compiler_message.data());
+      compiler_message.resize(static_cast<std::size_t>(log_length));
+
+      if (result != GL_TRUE) {
+        throw std::runtime_error("Cannot link program: " + compiler_message);
+      }
+    }
+
+    return result == GL_TRUE;
+  }
+
 private:
   static constexpr GLuint INVALID_PROGRAM_ID = 0xFFFFFFFF;
   GLuint program_id_;
