@@ -3,7 +3,6 @@ module;
 #include <glad/glad.h>
 #include <stdexcept>
 #include <string>
-#include <vector>
 
 export module Runic.Program;
 
@@ -12,7 +11,25 @@ import Runic.Utils;
 namespace runic {
 export class Shader final {
 public:
+  Shader(const Shader &) = delete;
+  Shader &operator=(const Shader &) = delete;
+
+  Shader(Shader &&other) noexcept : shader_id_(other.shader_id_) {
+    other.shader_id_ = INVALID_SHADER_ID;
+  }
+
+  Shader &operator=(Shader &&other) noexcept {
+    if (this != &other) {
+      Delete();
+      shader_id_ = other.shader_id_;
+      other.shader_id_ = INVALID_SHADER_ID;
+    }
+
+    return *this;
+  }
+
   Shader() : shader_id_(INVALID_SHADER_ID) {}
+
   ~Shader() { Delete(); }
 
   void Delete() {
@@ -25,7 +42,7 @@ public:
   GLuint GetID() const { return shader_id_; }
   bool IsNull() const { return shader_id_ == INVALID_SHADER_ID; }
 
-  bool Compile(std::string &shader_file, GLenum shader_type) {
+  bool Compile(const std::string &shader_file, GLenum shader_type) {
     Delete();
     shader_id_ = glCreateShader(shader_type);
     auto source_code = runic::utils::LoadSource(shader_file);
@@ -39,12 +56,17 @@ public:
     GLint info_log_length{};
     glGetShaderiv(shader_id_, GL_INFO_LOG_LENGTH, &info_log_length);
     if (info_log_length > 1) {
-      std::string compiler_message(static_cast<std::size_t>(info_log_length), 0);
+      std::string compiler_message(static_cast<std::size_t>(info_log_length),
+                                   0);
       GLint log_length{};
-      glGetShaderInfoLog(shader_id_, static_cast<GLsizei>(compiler_message.length()),
+      glGetShaderInfoLog(shader_id_,
+                         static_cast<GLsizei>(compiler_message.length()),
                          &log_length, compiler_message.data());
       compiler_message.resize(static_cast<std::size_t>(log_length));
-      throw std::runtime_error("Cannot compile shader: " + compiler_message);
+
+      if (result != GL_TRUE) {
+        throw std::runtime_error("Cannot compile shader: " + compiler_message);
+      }
     }
 
     if (result) {
@@ -65,7 +87,25 @@ private:
 
 export class Program final {
 public:
+  Program(const Program &) = delete;
+  Program &operator=(const Program &) = delete;
+
+  Program(Program &&other) noexcept : program_id_(other.program_id_) {
+    other.program_id_ = INVALID_PROGRAM_ID;
+  }
+
+  Program &operator=(Program &&other) noexcept {
+    if (this != &other) {
+      Delete();
+      program_id_ = other.program_id_;
+      other.program_id_ = INVALID_PROGRAM_ID;
+    }
+
+    return *this;
+  }
+
   Program() : program_id_(INVALID_PROGRAM_ID) {}
+
   ~Program() { Delete(); }
 
   void Delete() {
@@ -75,7 +115,11 @@ public:
     }
   }
 
-  void Bind() const { glUseProgram(program_id_); }
+  void Bind() const {
+    if (program_id_ != INVALID_PROGRAM_ID) {
+      glUseProgram(program_id_);
+    }
+  }
 
   void CreateProgram() {
     Delete();
@@ -83,10 +127,14 @@ public:
   }
 
   void AttachShader(Shader const &shader) {
-    glAttachShader(program_id_, shader.GetID());
+    if (program_id_ != INVALID_PROGRAM_ID) {
+      glAttachShader(program_id_, shader.GetID());
+    }
   }
   void AttachShader(GLuint shader_id) {
-    glAttachShader(program_id_, shader_id);
+    if (program_id_ != INVALID_PROGRAM_ID) {
+      glAttachShader(program_id_, shader_id);
+    }
   }
 
 private:

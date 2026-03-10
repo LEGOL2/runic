@@ -18,4 +18,4 @@ export std::string LoadSource(const std::string &file_path) {
   buffer << file.rdbuf();
   return buffer.str();
 }
-} // namespace runic
+} // namespace runic::utils
