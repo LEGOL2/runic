@@ -4,5 +4,6 @@ export module Runic;
 export import Runic.Application;
 export import Runic.Engine;
 export import Runic.Input;
+export import Runic.Mesh;
 export import Runic.Program;
 export import Runic.Renderer;
