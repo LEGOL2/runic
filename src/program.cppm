@@ -1,8 +1,15 @@
 module;
 
 #include <glad/glad.h>
+#include <glm/glm.hpp>
+#include <glm/gtc/type_ptr.hpp>
 #include <stdexcept>
 #include <string>
+#include <unordered_map>
+
+#ifndef NDEBUG
+#include <cstdio>
+#endif
 
 export module Runic.Program;
 
@@ -51,7 +58,7 @@ public:
     Delete();
     shader_id_ = glCreateShader(static_cast<GLenum>(shader_type));
     if (shader_id_ == INVALID_SHADER_ID) {
-      throw std::runtime_error("Failed to create shader");
+      throw std::runtime_error("[Runic] Error: Failed to create shader");
     }
     auto source_code = runic::utils::LoadSource(shader_file);
     auto *src = source_code.c_str();
@@ -73,7 +80,7 @@ public:
       compiler_message.resize(static_cast<std::size_t>(log_length));
 
       if (result != GL_TRUE) {
-        throw std::runtime_error("Cannot compile shader: " + compiler_message);
+        throw std::runtime_error("[Runic] Error: Cannot compile shader: " + compiler_message);
       }
     }
 
@@ -81,7 +88,7 @@ public:
       GLint stype;
       glGetShaderiv(shader_id_, GL_SHADER_TYPE, &stype);
       if (stype != static_cast<GLint>(shader_type)) {
-        throw std::runtime_error("Incorrect shader type");
+        throw std::runtime_error("[Runic] Error: Incorrect shader type");
       }
     }
 
@@ -151,6 +158,9 @@ public:
     if (program_id_ == INVALID_PROGRAM_ID) {
       return false;
     }
+
+    uniform_cache_.clear();
+
     glLinkProgram(program_id_);
     GLint result{};
     glGetProgramiv(program_id_, GL_LINK_STATUS, &result);
@@ -167,11 +177,47 @@ public:
       compiler_message.resize(static_cast<std::size_t>(log_length));
 
       if (result != GL_TRUE) {
-        throw std::runtime_error("Cannot link program: " + compiler_message);
+        throw std::runtime_error("[Runic] Error: Cannot link program: " + compiler_message);
       }
     }
 
     return result == GL_TRUE;
+  }
+
+  bool SetUniform(const std::string &name, float value) {
+    GLint loc = GetUniformLocation(name);
+    if (loc == -1)
+      return false;
+    glUniform1f(loc, value);
+    return true;
+  }
+
+  bool SetUniform(const std::string &name, int value) {
+    GLint loc = GetUniformLocation(name);
+    if (loc == -1)
+      return false;
+    glUniform1i(loc, value);
+    return true;
+  }
+
+  bool SetUniform(const std::string &name, bool value) {
+    return SetUniform(name, static_cast<int>(value));
+  }
+
+  bool SetUniform(const std::string &name, const glm::mat3 &value) {
+    GLint loc = GetUniformLocation(name);
+    if (loc == -1)
+      return false;
+    glUniformMatrix3fv(loc, 1, GL_FALSE, glm::value_ptr(value));
+    return true;
+  }
+
+  bool SetUniform(const std::string &name, const glm::mat4 &value) {
+    GLint loc = GetUniformLocation(name);
+    if (loc == -1)
+      return false;
+    glUniformMatrix4fv(loc, 1, GL_FALSE, glm::value_ptr(value));
+    return true;
   }
 
 private:
@@ -179,11 +225,29 @@ private:
     Delete();
     program_id_ = glCreateProgram();
     if (program_id_ == INVALID_PROGRAM_ID) {
-      throw std::runtime_error("Failed to create program");
+      throw std::runtime_error("[Runic] Error: Failed to create program");
     }
+  }
+
+  GLint GetUniformLocation(const std::string &name) {
+    if (const auto it = uniform_cache_.find(name); it != uniform_cache_.end())
+      return it->second;
+
+    GLint loc = glGetUniformLocation(program_id_, name.c_str());
+
+#ifndef NDEBUG
+    if (loc == -1)
+      std::fprintf(stderr,
+                   "[Runic] Warning: uniform '%s' not found in program %u\n",
+                   name.c_str(), program_id_);
+#endif
+
+    uniform_cache_[name] = loc;
+    return loc;
   }
 
   static constexpr GLuint INVALID_PROGRAM_ID = 0;
   GLuint program_id_;
+  std::unordered_map<std::string, GLint> uniform_cache_;
 };
 } // namespace runic
