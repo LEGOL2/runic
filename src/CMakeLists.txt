@@ -4,6 +4,7 @@ set(SRC
     engine.cppm
     glfw_context.cppm
     input.cppm
+    mesh.cppm
     program.cppm
     renderer.cppm
     runic.cppm

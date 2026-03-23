@@ -11,6 +11,11 @@ import Runic.Utils;
 namespace runic {
 export class Shader final {
 public:
+  enum class ShaderType {
+    VERTEX_SHADER = GL_VERTEX_SHADER,
+    FRAGMENT_SHADER = GL_FRAGMENT_SHADER,
+  };
+
   Shader(const Shader &) = delete;
   Shader &operator=(const Shader &) = delete;
 
@@ -42,9 +47,9 @@ public:
   GLuint GetID() const { return shader_id_; }
   bool IsNull() const { return shader_id_ == INVALID_SHADER_ID; }
 
-  bool Compile(const std::string &shader_file, GLenum shader_type) {
+  bool Compile(const std::string &shader_file, ShaderType shader_type) {
     Delete();
-    shader_id_ = glCreateShader(shader_type);
+    shader_id_ = glCreateShader(static_cast<GLenum>(shader_type));
     if (shader_id_ == INVALID_SHADER_ID) {
       throw std::runtime_error("Failed to create shader");
     }

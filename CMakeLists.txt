@@ -13,3 +13,10 @@ add_subdirectory(src)
 
 add_executable(main main.cpp)
 target_link_libraries(main PRIVATE runic)
+
+add_custom_target(copy_assets ALL
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+        ${CMAKE_SOURCE_DIR}/assets
+        ${CMAKE_BINARY_DIR}/assets
+)
+add_dependencies(main copy_assets)
