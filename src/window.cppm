@@ -5,7 +5,7 @@ module;
 #include <GLFW/glfw3.h>
 // clang-format on
 
-#include <cstdlib>
+#include <stdexcept>
 
 export module Runic.Window;
 
@@ -40,20 +40,19 @@ public:
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-
 #ifndef NDEBUG
     glfwWindowHint(GLFW_CONTEXT_DEBUG, GLFW_TRUE);
 #endif
     window_ = glfwCreateWindow(window_width_, window_height_, window_title,
                                nullptr, nullptr);
     if (!window_) {
-      std::exit(1);
+      throw std::runtime_error("Failed to create GLFW window");
     }
 
     glfwMakeContextCurrent(window_);
     if (!gladLoadGLLoader(reinterpret_cast<GLADloadproc>(glfwGetProcAddress))) {
       glfwDestroyWindow(window_);
-      std::exit(1);
+      throw std::runtime_error("Failed to initialize GLAD");
     }
     if (vsync) {
       glfwSwapInterval(1);
@@ -67,12 +66,10 @@ public:
     }
   }
 
+  GLFWwindow *GetWindow() const { return window_; }
   bool ShouldClose() const { return glfwWindowShouldClose(window_); }
-
-  void EndFrame() {
-    glfwSwapBuffers(window_);
-    glfwPollEvents();
-  }
+  void PollEvents() { glfwPollEvents(); }
+  void SwapBuffers() { glfwSwapBuffers(window_); }
 
 private:
   GLFWwindow *window_;

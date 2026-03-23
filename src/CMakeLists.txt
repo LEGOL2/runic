@@ -3,6 +3,7 @@ set(SRC
     application.cppm
     engine.cppm
     glfw_context.cppm
+    input.cppm
     program.cppm
     renderer.cppm
     runic.cppm
