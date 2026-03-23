@@ -3,6 +3,7 @@ module;
 #include <GLFW/glfw3.h>
 
 #include <array>
+#include <cstddef>
 
 export module Runic.Input;
 
@@ -53,12 +54,12 @@ export enum class Key {
   X = GLFW_KEY_X,
   Y = GLFW_KEY_Y,
   Z = GLFW_KEY_Z,
-  LEFT_BRACKET = GLFW_KEY_LEFT_BRACKET,  /* [ */
-  BACKSLASH = GLFW_KEY_BACKSLASH,        /* \ */
-  RIGHT_BRACKE = GLFW_KEY_RIGHT_BRACKET, /* ] */
-  GRAVE_ACCENT = GLFW_KEY_GRAVE_ACCENT,  /* ` */
-  WORLD_1 = GLFW_KEY_WORLD_1,            /* non-US #1 */
-  WORLD_2 = GLFW_KEY_WORLD_2,            /* non-US #2 */
+  LEFT_BRACKET = GLFW_KEY_LEFT_BRACKET,   /* [ */
+  BACKSLASH = GLFW_KEY_BACKSLASH,         /* \ */
+  RIGHT_BRACKET = GLFW_KEY_RIGHT_BRACKET, /* ] */
+  GRAVE_ACCENT = GLFW_KEY_GRAVE_ACCENT,   /* ` */
+  WORLD_1 = GLFW_KEY_WORLD_1,             /* non-US #1 */
+  WORLD_2 = GLFW_KEY_WORLD_2,             /* non-US #2 */
 
   /* Function keys */
   ESCAPE = GLFW_KEY_ESCAPE,
@@ -158,6 +159,8 @@ export struct MouseDelta {
 };
 
 export class Input {
+  using size_t = std::size_t;
+
 public:
   bool IsKeyDown(Key key) const {
     auto k = static_cast<size_t>(key);
@@ -195,14 +198,14 @@ public:
   MouseDelta GetMouseDelta() const { return mouse_delta_; }
 
   void UpdateKeyState(int glfw_key, int glfw_action) {
-    if (glfw_key < 0 || glfw_key >= kKeyCount)
+    if (glfw_key < 0 || glfw_key >= static_cast<int>(kKeyCount))
       return;
     current_keys_[static_cast<size_t>(glfw_key)] =
         (glfw_action != GLFW_RELEASE);
   }
 
   void UpdateMouseButtonState(int glfw_button, int glfw_action) {
-    if (glfw_button < 0 || glfw_button >= kMouseButtonCount)
+    if (glfw_button < 0 || glfw_button >= static_cast<int>(kMouseButtonCount))
       return;
     current_mouse_buttons_[static_cast<size_t>(glfw_button)] =
         (glfw_action != GLFW_RELEASE);

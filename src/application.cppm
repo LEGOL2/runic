@@ -7,7 +7,7 @@ namespace runic {
 export class AppContext {
 public:
   void RequestClose() { should_close_ = true; }
-  bool ShouldClose() { return should_close_; }
+  bool ShouldClose() const { return should_close_; }
 
 private:
   bool should_close_{false};
