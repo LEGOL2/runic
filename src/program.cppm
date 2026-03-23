@@ -107,6 +107,7 @@ public:
 
   Program(Program &&other) noexcept : program_id_(other.program_id_) {
     other.program_id_ = INVALID_PROGRAM_ID;
+    other.uniform_cache_.clear();
   }
 
   Program &operator=(Program &&other) noexcept {
@@ -127,6 +128,7 @@ public:
     if (program_id_ != INVALID_PROGRAM_ID) {
       glDeleteProgram(program_id_);
       program_id_ = INVALID_PROGRAM_ID;
+      uniform_cache_.clear();
     }
   }
 
