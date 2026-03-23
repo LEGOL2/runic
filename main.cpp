@@ -2,12 +2,18 @@ import Runic;
 
 class MyApp : public runic::Application {
 public:
-  void OnInit(runic::Renderer &renderer) override {
+  void OnInit(runic::AppContext &ctx, runic::Renderer &renderer) override {
     renderer.SetClearColor(0.0f, 0.5f, 0.6f);
   }
-  void OnUpdate(float dt) override {}
-  void OnRender(runic::Renderer &renderer) override {}
-  void OnShutdown() override {}
+
+  void OnUpdate(runic::AppContext &ctx, runic::Input &input, float dt) override {
+    if (input.IsKeyPressed(runic::Key::ESCAPE)) {
+      ctx.RequestClose();
+    }
+  }
+
+  void OnRender(runic::AppContext &ctx, runic::Renderer &renderer) override {}
+  void OnShutdown(runic::AppContext &ctx) override {}
 };
 
 int main() {
