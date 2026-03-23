@@ -1,16 +1,18 @@
 module;
 
-#include <glad/glad.h>
+#include <chrono>
 
 export module Runic.Engine;
 
+import Runic.Application;
 import Runic.GlfwContext;
+import Runic.Renderer;
 import Runic.Window;
 
 namespace runic {
 export struct EngineConfig {
-  size_t window_width;
-  size_t window_height;
+  int window_width;
+  int window_height;
   const char *window_title;
   bool vsync;
 };
@@ -18,27 +20,37 @@ export struct EngineConfig {
 export class Engine {
 public:
   Engine(EngineConfig config)
-      : glfw_context_(),
-        window_(config.window_width, config.window_height, config.window_title,
-                config.vsync) {}
+      : glfw_context_(), window_(config.window_width, config.window_height,
+                                 config.window_title, config.vsync) {}
 
-  void Render() {
-    glClearColor(0.0f, 0.5f, 0.6f, 1.0f);
+  void Run(Application &app) {
+    app.OnInit(renderer_);
 
-    // begin frame
-    glClear(GL_COLOR_BUFFER_BIT);
-    // render
+    using Clock = std::chrono::steady_clock;
+    auto last_time = Clock::now();
 
-    // end frame
-    window_.EndFrame();
+    while (!window_.ShouldClose()) {
+      auto now = Clock::now();
+      float dt = std::chrono::duration<float>(now - last_time).count();
+      last_time = now;
+
+      app.OnUpdate(dt);
+
+      renderer_.Clear();
+      app.OnRender(renderer_);
+
+      window_.EndFrame();
+    }
+
+    app.OnShutdown();
   }
 
-  bool ShouldClose() const {
-    return window_.ShouldClose();
-  }
+  const Renderer &GetRenderer() const { return renderer_; }
+  bool ShouldClose() const { return window_.ShouldClose(); }
 
 private:
   runic::GlfwContext glfw_context_;
   runic::Window window_;
+  runic::Renderer renderer_;
 };
 } // namespace runic
