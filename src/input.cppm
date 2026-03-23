@@ -195,7 +195,7 @@ public:
   MouseDelta GetMouseDelta() const { return mouse_delta_; }
 
   void UpdateKeyState(int glfw_key, int glfw_action) {
-    if (glfw_key < 0 && glfw_key >= kKeyCount)
+    if (glfw_key < 0 || glfw_key >= kKeyCount)
       return;
     current_keys_[static_cast<size_t>(glfw_key)] =
         (glfw_action != GLFW_RELEASE);
@@ -207,6 +207,8 @@ public:
     current_mouse_buttons_[static_cast<size_t>(glfw_button)] =
         (glfw_action != GLFW_RELEASE);
   }
+
+  void InitMousePosition(double x, double y) { mouse_pos_ = {x, y}; }
 
   void UpdateMousePosition(double x, double y) {
     mouse_delta_ = {x - mouse_pos_.x, y - mouse_pos_.y};
