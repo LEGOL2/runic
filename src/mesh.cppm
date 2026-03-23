@@ -15,6 +15,7 @@ public:
   Mesh(Mesh &&other) noexcept
       : vao_(other.vao_), vbo_(other.vbo_), vertex_count_(other.vertex_count_) {
     other.vao_ = other.vbo_ = 0;
+    vertex_count_ = 0;
   }
 
   Mesh &operator=(Mesh &&other) noexcept {
@@ -24,6 +25,7 @@ public:
       vbo_ = other.vbo_;
       vertex_count_ = other.vertex_count_;
       other.vao_ = other.vbo_ = 0;
+      other.vertex_count_ = 0;
     }
     return *this;
   }
@@ -49,6 +51,8 @@ public:
   ~Mesh() { Delete(); }
 
   void Draw() const {
+    if (vao_ == 0 || vertex_count_ == 0)
+      return;
     glBindVertexArray(vao_);
     glDrawArrays(GL_TRIANGLES, 0, static_cast<GLsizei>(vertex_count_));
     glBindVertexArray(0);
