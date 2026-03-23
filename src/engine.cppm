@@ -78,6 +78,10 @@ private:
                                static_cast<Input *>(glfwGetWindowUserPointer(w))
                                    ->UpdateMousePosition(x, y);
                              });
+
+    double mx, my;
+    glfwGetCursorPos(window_.GetWindow(), &mx, &my);
+    input_.InitMousePosition(mx, my);
   }
 
   runic::AppContext app_context_;

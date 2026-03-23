@@ -211,6 +211,8 @@ public:
         (glfw_action != GLFW_RELEASE);
   }
 
+  void InitMousePosition(double x, double y) { mouse_pos_ = {x, y}; }
+
   void UpdateMousePosition(double x, double y) {
     mouse_delta_ = {x - mouse_pos_.x, y - mouse_pos_.y};
     mouse_pos_ = {x, y};
