@@ -1,7 +1,6 @@
 module;
 
 #include <chrono>
-#include <glad/glad.h>
 
 export module Runic.Engine;
 
@@ -35,7 +34,7 @@ public:
       float dt = std::chrono::duration<float>(now - last_time).count();
       last_time = now;
 
-      app.OnUpdate(renderer_, dt);
+      app.OnUpdate(dt);
 
       renderer_.Clear();
       app.OnRender(renderer_);
@@ -43,10 +42,10 @@ public:
       window_.EndFrame();
     }
 
-    app.OnShutdown(renderer_);
+    app.OnShutdown();
   }
 
-  Renderer& GetRenderer() {return renderer_;}
+  const Renderer &GetRenderer() const { return renderer_; }
   bool ShouldClose() const { return window_.ShouldClose(); }
 
 private:

@@ -7,9 +7,9 @@ export class Application {
 public:
   virtual ~Application() = default;
 
-  virtual void OnInit(Renderer& renderer) {}
-  virtual void OnUpdate(Renderer& renderer, float dt) {}
-  virtual void OnRender(Renderer& renderer) {}
-  virtual void OnShutdown(Renderer& renderer) {}
+  virtual void OnInit(Renderer &renderer) {}
+  virtual void OnUpdate(float dt) {}
+  virtual void OnRender(Renderer &renderer) {}
+  virtual void OnShutdown() {}
 };
 } // namespace runic
