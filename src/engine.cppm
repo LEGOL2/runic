@@ -84,10 +84,10 @@ private:
     input_.InitMousePosition(mx, my);
   }
 
-  runic::AppContext app_context_;
   runic::GlfwContext glfw_context_;
   runic::Window window_;
   runic::Input input_;
   runic::Renderer renderer_;
+  runic::AppContext app_context_;
 };
 } // namespace runic

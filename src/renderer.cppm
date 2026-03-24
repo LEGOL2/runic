@@ -7,6 +7,8 @@ export module Runic.Renderer;
 namespace runic {
 export class Renderer {
 public:
+  Renderer() { glEnable(GL_DEPTH_TEST); }
+
   void SetClearColor(float r, float g, float b, float a = 1.0f) {
     glClearColor(r, g, b, a);
   }
