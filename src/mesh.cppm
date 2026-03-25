@@ -78,19 +78,12 @@ public:
   ~Mesh() { Delete(); }
 
   void Draw() const {
-    if (vao_ == 0)
-      return;
-
     glBindVertexArray(vao_);
 
     if (ebo_) {
-      if (index_count_ == 0)
-        return;
       glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(index_count_),
                      GL_UNSIGNED_INT, nullptr);
     } else {
-      if (vertex_count_ == 0)
-        return;
       glDrawArrays(GL_TRIANGLES, 0, static_cast<GLsizei>(vertex_count_));
     }
 

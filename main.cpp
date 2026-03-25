@@ -68,10 +68,6 @@ public:
   void OnShutdown(runic::AppContext &ctx) override {}
 
 private:
-  static constexpr float kMoveSpeed = 1.0f;
-  static constexpr float kRotateSpeed = 2.0f;
-  static constexpr float kScaleSpeed = 0.5f;
-
   runic::Program program_;
   std::optional<runic::Mesh> mesh_;
   glm::mat4 projection_{};
