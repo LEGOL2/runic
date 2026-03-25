@@ -8,18 +8,38 @@ import Runic;
 class MyApp : public runic::Application {
 public:
   void OnInit(runic::AppContext &ctx, runic::Renderer &renderer) override {
-    renderer.SetClearColor(0.0f, 0.5f, 0.6f);
+    renderer.SetClearColor(0.1f, 0.1f, 0.1f);
 
     runic::Shader vert, frag;
-    vert.Compile("assets/triangle.vert",
-                 runic::Shader::ShaderType::VERTEX_SHADER);
-    frag.Compile("assets/triangle.frag",
+    vert.Compile("assets/cube.vert", runic::Shader::ShaderType::VERTEX_SHADER);
+    frag.Compile("assets/cube.frag",
                  runic::Shader::ShaderType::FRAGMENT_SHADER);
     program_.Build(vert, frag);
+
     constexpr float vertices[] = {
-        -0.5f, -0.5f, 0.0f, 0.5f, -0.5f, 0.0f, 0.0f, 0.5f, 0.0f,
+        -0.5f, -0.5f, -0.5f, // 0 back-bottom-left
+        0.5f,  -0.5f, -0.5f, // 1 back-bottom-right
+        0.5f,  0.5f,  -0.5f, // 2 back-top-right
+        -0.5f, 0.5f,  -0.5f, // 3 back-top-left
+        -0.5f, -0.5f, 0.5f,  // 4 front-bottom-left
+        0.5f,  -0.5f, 0.5f,  // 5 front-bottom-right
+        0.5f,  0.5f,  0.5f,  // 6 front-top-right
+        -0.5f, 0.5f,  0.5f,  // 7 front-top-left
     };
-    mesh_.emplace(std::span{vertices});
+
+    constexpr unsigned int indices[] = {
+        0, 1, 2, 2, 3, 0, // back
+        4, 5, 6, 6, 7, 4, // front
+        0, 4, 7, 7, 3, 0, // left
+        1, 5, 6, 6, 2, 1, // right
+        3, 2, 6, 6, 7, 3, // top
+        0, 1, 5, 5, 4, 0, // bottom
+    };
+
+    mesh_.emplace(std::span{vertices}, std::span{indices});
+
+    float aspect = 800.0f / 600.0f;
+    projection_ = glm::perspective(glm::radians(45.0f), aspect, 0.1f, 100.0f);
   }
 
   void OnUpdate(runic::AppContext &ctx, runic::Input &input,
@@ -28,57 +48,29 @@ public:
       ctx.RequestClose();
     }
 
-    // Translation
-    if (input.IsKeyDown(runic::Key::W))
-      position_.y += kMoveSpeed * dt;
-    if (input.IsKeyDown(runic::Key::S))
-      position_.y -= kMoveSpeed * dt;
-    if (input.IsKeyDown(runic::Key::A))
-      position_.x -= kMoveSpeed * dt;
-    if (input.IsKeyDown(runic::Key::D))
-      position_.x += kMoveSpeed * dt;
-
-    // Rotation
-    if (input.IsKeyDown(runic::Key::Q))
-      rotation_ += kRotateSpeed * dt;
-    if (input.IsKeyDown(runic::Key::E))
-      rotation_ -= kRotateSpeed * dt;
-
-    // Scale
-    if (input.IsKeyDown(runic::Key::Z))
-      scale_ += kScaleSpeed * dt;
-    if (input.IsKeyDown(runic::Key::X))
-      scale_ -= kScaleSpeed * dt;
-    scale_ = glm::max(scale_, 0.1f);
-
     elapsed_ += dt;
   }
 
   void OnRender(runic::AppContext &ctx, runic::Renderer &renderer) override {
     glm::mat4 model = glm::mat4(1.0f);
-    model = glm::translate(model, glm::vec3(position_, 0.0f));
-    model = glm::rotate(model, rotation_, glm::vec3(0.0f, 0.0f, 1.0f));
-    model = glm::scale(model, glm::vec3(scale_, scale_, 1.0f));
+    model = glm::translate(model, glm::vec3(0.0f, 0.0f, -3.0f));
+    model = glm::rotate(model, elapsed_ * glm::radians(50.0f),
+                        glm::vec3(1.0f, 0.0f, 0.0f));
+    model = glm::rotate(model, elapsed_ * glm::radians(30.0f),
+                        glm::vec3(0.0f, 1.0f, 0.0f));
 
     program_.Bind();
-    program_.SetUniform("uTime", elapsed_);
     program_.SetUniform("uModel", model);
+    program_.SetUniform("uProjection", projection_);
     mesh_->Draw();
   }
 
   void OnShutdown(runic::AppContext &ctx) override {}
 
 private:
-  static constexpr float kMoveSpeed = 1.0f;
-  static constexpr float kRotateSpeed = 2.0f;
-  static constexpr float kScaleSpeed = 0.5f;
-
   runic::Program program_;
   std::optional<runic::Mesh> mesh_;
-
-  glm::vec2 position_ = {0.0f, 0.0f};
-  float rotation_ = 0.0f;
-  float scale_ = 1.0f;
+  glm::mat4 projection_{};
   float elapsed_ = 0.0f;
 };
 
